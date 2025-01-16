@@ -1,0 +1,47 @@
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3();
+const uuid = require('uuid'); // To create unique file names
+
+exports.handler = async (event) => {
+    // Assuming the file is passed as a base64 encoded string in the event
+    const fileName = event.fileName; // The name of the file
+    const base64Data = event.base64Data; // The base64 encoded data of the file
+    
+    // Convert the base64 string to binary buffer
+    const buffer = Buffer.from(base64Data, 'base64');
+    
+    // S3 bucket name (replace with your actual bucket name)
+    const bucketName = 'your-s3-bucket-name';
+    
+    // Generate a unique key for the file (to avoid overwriting)
+    const fileKey = `${uuid.v4()}-${fileName}`;
+
+    try {
+        // Upload the file to the S3 bucket
+        const s3Response = await s3.putObject({
+            Bucket: bucketName,
+            Key: fileKey,
+            Body: buffer,
+            ContentType: 'application/pdf', // Assuming it's a PDF file, adjust if needed
+            ACL: 'public-read' // Adjust permissions as needed
+        }).promise();
+        
+        // Return the response with the file URL
+        const response = {
+            statusCode: 200,
+            body: JSON.stringify({
+                message: 'File uploaded successfully!',
+                fileUrl: `https://${bucketName}.s3.amazonaws.com/${fileKey}`
+            })
+        };
+        
+        return response;
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        const response = {
+            statusCode: 500,
+            body: JSON.stringify({ message: 'Error uploading file', error: error.message })
+        };
+        return response;
+    }
+};
