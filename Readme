@@ -1,1 +1,47 @@
+AWS1
 
+exports.handler = async (event) => {
+    // Get numbers from the event input
+    const num1 = event.num1;
+    const num2 = event.num2;
+    
+    // Add the numbers
+    const result = num1 + num2;
+    
+    // Return the result
+    const response = {
+        statusCode: 200,
+        body: JSON.stringify({ result: result })
+    };
+    
+    return response;
+};
+
+AWS2
+
+# AWS Lambda Function: Store a Document/PDF in an S3 Bucket
+
+This is a simple AWS Lambda function that accepts a document (PDF or any file) as input and stores it in an S3 bucket.
+
+## Function Overview
+
+- The function takes a file (like a document or PDF) as an input in the `event` object.
+- It uploads the file to a specified AWS S3 bucket.
+- The S3 bucket's name and key (path) are determined by the input data.
+
+## Input Format
+
+The input to the Lambda function must be an object with the following properties:
+
+- `bucketName`: The name of the S3 bucket where the file will be stored.
+- `fileName`: The name of the file to be stored (including the file extension).
+- `fileContent`: The content of the file to be uploaded. This should be base64 encoded.
+
+Example input event:
+
+```json
+{
+    "bucketName": "your-bucket-name",
+    "fileName": "document.pdf",
+    "fileContent": "base64encodedcontenthere=="
+}
